@@ -22,10 +22,14 @@ public class HttpStaticFileHandler extends SimpleChannelInboundHandler<FullHttpR
         // 이 Handler는 SimpleChannelInboundHandler<I>를 확장했지만 "auto-release: false"임에 주의합니다.
         // 상황에 따라 "필요시"에는 retain()을 부르도록 합니다.
 
+        System.out.println(req.uri());
 
-
-
-
+        if ("/".equals(req.uri())) {
+            sendStaticFile(ctx, req);
+        }
+        else {
+            ctx.fireChannelRead(req);
+        }
     }
 
     private void sendStaticFile(ChannelHandlerContext ctx, FullHttpRequest req) throws IOException {
@@ -39,6 +43,7 @@ public class HttpStaticFileHandler extends SimpleChannelInboundHandler<FullHttpR
             if (HttpUtil.isKeepAlive(req)) {
                 res.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
             }
+
             ctx.write(res); // 응답 헤더 전송
             ctx.write(new DefaultFileRegion(raf.getChannel(), 0, fileLength));
             ChannelFuture f = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);

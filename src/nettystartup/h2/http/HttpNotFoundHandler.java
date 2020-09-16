@@ -3,6 +3,7 @@ package nettystartup.h2.http;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
@@ -18,10 +19,16 @@ public class HttpNotFoundHandler extends SimpleChannelInboundHandler<FullHttpReq
             res.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }
         res.headers().set(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
-        ctx.writeAndFlush(res).addListener((ChannelFuture f) -> {
-            if (!HttpUtil.isKeepAlive(req)) {
-                f.channel().close();
-            }
-        });
+//        ctx.writeAndFlush(res).addListener((ChannelFuture f) -> {
+//            if (!HttpUtil.isKeepAlive(req)) {
+//                f.channel().close();
+//            }
+//        });
+
+        ChannelFuture channelFuture = ctx.writeAndFlush(res);
+
+        if (!HttpUtil.isKeepAlive(req)) {
+            channelFuture.addListener(ChannelFutureListener.CLOSE);
+        }
     }
 }

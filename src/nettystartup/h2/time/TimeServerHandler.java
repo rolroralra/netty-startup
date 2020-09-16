@@ -6,6 +6,7 @@ import io.netty.channel.*;
 
 @ChannelHandler.Sharable
 class TimeServerHandler extends ChannelInboundHandlerAdapter {
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ByteBuf time = ctx.alloc().buffer(4);
@@ -16,5 +17,11 @@ class TimeServerHandler extends ChannelInboundHandlerAdapter {
             assert f == future;
             ctx.close();
         });
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();
     }
 }
